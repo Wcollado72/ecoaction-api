@@ -3,11 +3,13 @@
 EcoAction API is a RESTful backend built with Node.js, Express, Sequelize and MySQL.  
 It allows users to register, authenticate with JWT, and manage personal tasks (to‑do list) with full CRUD operations and filters by status and due date.
 
+---
+
 ## Features
 
 - User registration with email and hashed password (bcrypt)
 - User login with JSON Web Tokens (JWT)
-- Protected task endpoints (only authenticated users can access their own tasks)
+- Authentication middleware that protects all task routes
 - Task CRUD:
   - Create a task
   - Get all tasks for the authenticated user
@@ -17,8 +19,12 @@ It allows users to register, authenticate with JWT, and manage personal tasks (t
 - Task filters:
   - Filter tasks by `status` (`pending`, `in_progress`, `done`)
   - Filter tasks by `due_date` (all tasks due on a specific day)
-- Global error handling and JSON 404 responses
-- Health check endpoint
+- Global error handling with consistent JSON responses
+- Health check endpoint to verify API availability
+- Environment-based configuration with `.env` and `.env.example`
+- Docker Compose file to run MySQL in a container
+
+---
 
 ## Technologies
 
@@ -29,6 +35,7 @@ It allows users to register, authenticate with JWT, and manage personal tasks (t
 - bcrypt
 - dotenv
 - cors
+- Docker (for local MySQL)
 
 ---
 
@@ -49,9 +56,11 @@ ecoaction-api/
 │  ├─ models/
 │  │  ├─ User.js
 │  │  └─ Task.js
-│  └─ routes/
-│     ├─ authRoutes.js
-│     └─ taskRoutes.js
+│  ├─ routes/
+│  │  ├─ authRoutes.js
+│  │  └─ taskRoutes.js
+│  └─ utils/
+│     └─ appError.js
 ├─ .env
 ├─ .env.example
 ├─ docker-compose.yml
@@ -86,7 +95,7 @@ cp .env.example .env
 
 Then update the values with your local configuration.
 
-The main variables are:
+Main variables:
 
 - `PORT` – API port (default: `3000`)
 - `DB_HOST` – MySQL host (for local Docker: `localhost`)
@@ -115,6 +124,8 @@ Make sure `.env` matches these values.
 
 ### 5. Run the API
 
+During development you can run the API with Node directly:
+
 ```bash
 node src/app.js
 ```
@@ -136,9 +147,14 @@ Table: `users`
 Fields:
 
 - `id` – integer, primary key, auto‑increment
-- `email` – string, required, unique, valid email format
+- `email` – string, required, unique, trimmed and stored in lowercase, valid email format
 - `password` – string, required (stored as bcrypt hash)
 - `createdAt`, `updatedAt` – timestamps (managed by Sequelize)
+
+Validation:
+
+- Email is required, must be a valid email and between 5 and 255 characters.
+- Password is required and validated at controller level (minimum length, not empty).
 
 ### Task
 
@@ -209,9 +225,50 @@ Example success response:
 
 Validation / error cases:
 
-- Missing `email` or `password` → `400 Bad Request`
-- Invalid email format → `400 Bad Request`
-- Email already registered → `400 Bad Request`
+- Missing `email` or `password` → `400 Bad Request` with:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email is required."
+    }
+  ]
+}
+```
+
+- Password too short → `400 Bad Request`:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "password",
+      "message": "Password must be at least 6 characters long."
+    }
+  ]
+}
+```
+
+- Email already registered → `409 Conflict`:
+
+```json
+{
+  "success": false,
+  "message": "This email is already registered.",
+  "errors": [
+    {
+      "field": "email",
+      "message": "This email is already registered."
+    }
+  ]
+}
+```
 
 #### Login
 
@@ -240,7 +297,14 @@ Example success response:
 }
 ```
 
-The `token` field contains the JWT that must be used in protected routes.
+Error case (invalid credentials):
+
+```json
+{
+  "success": false,
+  "message": "Invalid credentials."
+}
+```
 
 ---
 
@@ -256,7 +320,7 @@ In Postman:
 
 - Go to the **Authorization** tab
 - Select **Bearer Token**
-- Paste the token in the token field (without `Bearer` word)
+- Paste the token in the token field (without adding `Bearer` manually if Postman does it for you)
 
 ---
 
@@ -284,7 +348,7 @@ Request body:
 }
 ```
 
-Example response:
+Example success response:
 
 ```json
 {
@@ -300,6 +364,38 @@ Example response:
     "createdAt": "...",
     "updatedAt": "..."
   }
+}
+```
+
+Validation error examples:
+
+- Missing title:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "title",
+      "message": "Title is required."
+    }
+  ]
+}
+```
+
+- Invalid status:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "status",
+      "message": "Invalid status value. Allowed values: pending, in_progress, done."
+    }
+  ]
 }
 ```
 
@@ -338,11 +434,9 @@ Example response:
 
 **GET** `/api/tasks/:id`
 
-Example:
+Example: `GET /api/tasks/1`
 
-`GET /api/tasks/1`
-
-Headers: Authorization as above.
+Headers: same Authorization as above.
 
 Response (success):
 
@@ -362,15 +456,20 @@ Response (success):
 }
 ```
 
-If the task does not exist or does not belong to the user → `404 Task not found`.
+If the task does not exist or does not belong to the user:
+
+```json
+{
+  "success": false,
+  "message": "Task not found."
+}
+```
 
 #### Update Task
 
 **PUT** `/api/tasks/:id`
 
-Example:
-
-`PUT /api/tasks/1`
+Example: `PUT /api/tasks/1`
 
 Request body (any combination of fields):
 
@@ -381,7 +480,7 @@ Request body (any combination of fields):
 }
 ```
 
-Response:
+Example success response:
 
 ```json
 {
@@ -400,15 +499,54 @@ Response:
 }
 ```
 
+Validation error examples:
+
+- Empty title:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "title",
+      "message": "Title cannot be empty."
+    }
+  ]
+}
+```
+
+- Invalid status:
+
+```json
+{
+  "success": false,
+  "message": "Validation error.",
+  "errors": [
+    {
+      "field": "status",
+      "message": "Invalid status value. Allowed values: pending, in_progress, done."
+    }
+  ]
+}
+```
+
+If the task does not exist or does not belong to the user:
+
+```json
+{
+  "success": false,
+  "message": "Task not found."
+}
+```
+
 #### Delete Task
 
 **DELETE** `/api/tasks/:id`
 
-Example:
+Example: `DELETE /api/tasks/1`
 
-`DELETE /api/tasks/1`
-
-Response:
+Success response:
 
 ```json
 {
@@ -417,132 +555,15 @@ Response:
 }
 ```
 
----
-
-### Task Filters
-
-#### Filter by Status
-
-**GET** `/api/tasks?status=in_progress`
-
-Supported values: `pending`, `in_progress`, `done`.
-
-Example response:
-
-```json
-{
-  "success": true,
-  "count": 1,
-  "data": [
-    {
-      "id": 2,
-      "title": "Filter test task",
-      "description": "Testing filters",
-      "status": "in_progress",
-      "due_date": "2026-05-13T18:00:00.000Z",
-      "userId": 1,
-      "createdAt": "...",
-      "updatedAt": "..."
-    }
-  ]
-}
-```
-
-If status is invalid → `400 Bad Request`.
-
-#### Filter by Due Date
-
-**GET** `/api/tasks?due_date=2026-05-13`
-
-The API will return all tasks whose `due_date` falls on that date (regardless of time).
-
-Example response:
-
-```json
-{
-  "success": true,
-  "count": 1,
-  "data": [
-    {
-      "id": 2,
-      "title": "Filter test task",
-      "description": "Testing filters",
-      "status": "in_progress",
-      "due_date": "2026-05-13T18:00:00.000Z",
-      "userId": 1,
-      "createdAt": "...",
-      "updatedAt": "..."
-    }
-  ]
-}
-```
-
----
-
-## Error Handling
-
-- Validation errors (Sequelize) → `400` with list of fields and messages  
-- Unique constraint errors (e.g. duplicate email) → `400`  
-- Missing or invalid JWT → `401 Unauthorized`  
-- Accessing tasks that do not belong to the user → `404 Task not found`  
-- Unknown routes → `404 Route not found`  
-- Unhandled errors → `500 Internal server error`
-
-All error responses follow a JSON structure:
+If the task does not exist or does not belong to the user:
 
 ```json
 {
   "success": false,
-  "message": "Error message here"
+  "message": "Task not found."
 }
 ```
 
 ---
 
-## Testing with Postman
-
-Recommended test flow:
-
-1. `POST /api/auth/register` – create a new user.  
-2. `POST /api/auth/login` – get the JWT token.  
-3. Set Bearer Token in Postman Authorization tab.  
-4. `POST /api/tasks` – create one or more tasks.  
-5. `GET /api/tasks` – list tasks.  
-6. `GET /api/tasks/:id` – get a single task.  
-7. `PUT /api/tasks/:id` – update task fields.  
-8. `DELETE /api/tasks/:id` – remove a task.  
-9. `GET /api/tasks?status=...` – test status filter.  
-10. `GET /api/tasks?due_date=YYYY-MM-DD` – test due date filter.  
-
-Export your Postman collection to include it in the project submission.
-
----
-
-## Screenshots and Video (for course submission)
-
-Suggested screenshots:
-
-- Terminal showing `node src/app.js` running and tables synchronized.
-- Successful `POST /api/auth/register`.
-- Successful `POST /api/auth/login` with token.
-- Successful `POST /api/tasks`.
-- Successful `GET /api/tasks`.
-- Successful `GET /api/tasks/:id`.
-- Successful `PUT /api/tasks/:id`.
-- Successful `DELETE /api/tasks/:id`.
-- Successful filters by `status` and `due_date`.
-- `GET /api/health`.
-
-Suggested video (short demo):
-
-- Start the server.  
-- Show health check.  
-- Show register and login.  
-- Show creating, listing, updating and deleting tasks.  
-- Show filters by status and due date.
-
----
-
-## License
-
-This project is for educational purposes as part of a back‑end development course.
+### Task 

@@ -1,25 +1,58 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const AppError = require('../utils/appError');
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email and password are required.'
+        email = typeof email === 'string' ? email.trim().toLowerCase() : email;
+        password = typeof password === 'string' ? password.trim() : password;
+
+        const validationErrors = [];
+
+        if (!email) {
+            validationErrors.push({
+                field: 'email',
+                message: 'Email is required.'
             });
+        }
+
+        if (!password) {
+            validationErrors.push({
+                field: 'password',
+                message: 'Password is required.'
+            });
+        }
+
+        if (password && password.length < 6) {
+            validationErrors.push({
+                field: 'password',
+                message: 'Password must be at least 6 characters long.'
+            });
+        }
+
+        if (password && password.length > 100) {
+            validationErrors.push({
+                field: 'password',
+                message: 'Password must not exceed 100 characters.'
+            });
+        }
+
+        if (validationErrors.length > 0) {
+            return next(new AppError('Validation error.', 400, validationErrors));
         }
 
         const existingUser = await User.findOne({ where: { email } });
 
         if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'This email is already registered.'
-            });
+            return next(new AppError('This email is already registered.', 409, [
+                {
+                    field: 'email',
+                    message: 'This email is already registered.'
+                }
+            ]));
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,41 +71,47 @@ const register = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in register controller:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error.'
-        });
+        next(error);
     }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+        let { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email and password are required.'
+        email = typeof email === 'string' ? email.trim().toLowerCase() : email;
+        password = typeof password === 'string' ? password.trim() : password;
+
+        const validationErrors = [];
+
+        if (!email) {
+            validationErrors.push({
+                field: 'email',
+                message: 'Email is required.'
             });
+        }
+
+        if (!password) {
+            validationErrors.push({
+                field: 'password',
+                message: 'Password is required.'
+            });
+        }
+
+        if (validationErrors.length > 0) {
+            return next(new AppError('Validation error.', 400, validationErrors));
         }
 
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials.'
-            });
+            return next(new AppError('Invalid credentials.', 401));
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials.'
-            });
+            return next(new AppError('Invalid credentials.', 401));
         }
 
         const token = jwt.sign(
@@ -96,11 +135,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in login controller:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error.'
-        });
+        next(error);
     }
 };
 

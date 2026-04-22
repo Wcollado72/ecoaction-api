@@ -1,22 +1,17 @@
 const jwt = require('jsonwebtoken');
+const AppError = require('../utils/appError');
 
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({
-            success: false,
-            message: 'Access denied. No authorization header provided.'
-        });
+        return next(new AppError('Access denied. No authorization header provided.', 401));
     }
 
     const parts = authHeader.split(' ');
 
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid authorization format. Use Bearer token.'
-        });
+        return next(new AppError('Invalid authorization format. Use Bearer token.', 401));
     }
 
     const token = parts[1];
@@ -26,10 +21,7 @@ const authenticateToken = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid or expired token.'
-        });
+        return next(new AppError('Invalid or expired token.', 401));
     }
 };
 

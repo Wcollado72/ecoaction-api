@@ -1,28 +1,34 @@
 const { Op, fn, col, where } = require('sequelize');
 const Task = require('../models/Task');
+const AppError = require('../utils/appError');
 
 const validStatuses = ['pending', 'in_progress', 'done'];
 
 const createTask = async (req, res, next) => {
     try {
         const { title, description, status, due_date } = req.body;
+        const validationErrors = [];
 
-        if (!title) {
-            return res.status(400).json({
-                success: false,
+        if (!title || !title.trim()) {
+            validationErrors.push({
+                field: 'title',
                 message: 'Title is required.'
             });
         }
 
         if (status && !validStatuses.includes(status)) {
-            return res.status(400).json({
-                success: false,
+            validationErrors.push({
+                field: 'status',
                 message: 'Invalid status value. Allowed values: pending, in_progress, done.'
             });
         }
 
+        if (validationErrors.length > 0) {
+            return next(new AppError('Validation error.', 400, validationErrors));
+        }
+
         const newTask = await Task.create({
-            title,
+            title: title.trim(),
             description,
             status: status || 'pending',
             due_date,
@@ -42,17 +48,18 @@ const createTask = async (req, res, next) => {
 const getTasks = async (req, res, next) => {
     try {
         const { status, due_date } = req.query;
-
         const whereClause = {
             userId: req.user.id
         };
 
         if (status) {
             if (!validStatuses.includes(status)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Invalid status value. Allowed values: pending, in_progress, done.'
-                });
+                return next(new AppError('Validation error.', 400, [
+                    {
+                        field: 'status',
+                        message: 'Invalid status value. Allowed values: pending, in_progress, done.'
+                    }
+                ]));
             }
 
             whereClause.status = status;
@@ -96,10 +103,7 @@ const getTaskById = async (req, res, next) => {
         });
 
         if (!task) {
-            return res.status(404).json({
-                success: false,
-                message: 'Task not found.'
-            });
+            return next(new AppError('Task not found.', 404));
         }
 
         return res.status(200).json({
@@ -115,12 +119,24 @@ const updateTask = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { title, description, status, due_date } = req.body;
+        const validationErrors = [];
+
+        if (title !== undefined && !title.trim()) {
+            validationErrors.push({
+                field: 'title',
+                message: 'Title cannot be empty.'
+            });
+        }
 
         if (status && !validStatuses.includes(status)) {
-            return res.status(400).json({
-                success: false,
+            validationErrors.push({
+                field: 'status',
                 message: 'Invalid status value. Allowed values: pending, in_progress, done.'
             });
+        }
+
+        if (validationErrors.length > 0) {
+            return next(new AppError('Validation error.', 400, validationErrors));
         }
 
         const task = await Task.findOne({
@@ -131,14 +147,11 @@ const updateTask = async (req, res, next) => {
         });
 
         if (!task) {
-            return res.status(404).json({
-                success: false,
-                message: 'Task not found.'
-            });
+            return next(new AppError('Task not found.', 404));
         }
 
         await task.update({
-            title: title ?? task.title,
+            title: title !== undefined ? title.trim() : task.title,
             description: description ?? task.description,
             status: status ?? task.status,
             due_date: due_date ?? task.due_date
@@ -166,10 +179,7 @@ const deleteTask = async (req, res, next) => {
         });
 
         if (!task) {
-            return res.status(404).json({
-                success: false,
-                message: 'Task not found.'
-            });
+            return next(new AppError('Task not found.', 404));
         }
 
         await task.destroy();

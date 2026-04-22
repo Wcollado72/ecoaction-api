@@ -1,34 +1,48 @@
-// Importamos los tipos de datos de Sequelize
 const { DataTypes } = require('sequelize');
-// Importamos la conexión que configuramos en el paso anterior
 const sequelize = require('../config/db');
 
-// Definimos el modelo 'User'
 const User = sequelize.define('User', {
-    // Definimos la columna ID como clave primaria y autoincremental
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    // El email debe ser único y no puede estar vacío
     email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+        set(value) {
+            if (typeof value === 'string') {
+                this.setDataValue('email', value.trim().toLowerCase());
+            } else {
+                this.setDataValue('email', value);
+            }
+        },
         validate: {
-            isEmail: true // Valida que tenga formato de correo real
+            notEmpty: {
+                msg: 'Email is required.'
+            },
+            isEmail: {
+                msg: 'Email format is invalid.'
+            },
+            len: {
+                args: [5, 255],
+                msg: 'Email must be between 5 and 255 characters long.'
+            }
         }
     },
-    // La contraseña es obligatoria
     password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notEmpty: {
+                msg: 'Password is required.'
+            }
+        }
     }
 }, {
-    // Opciones adicionales
-    timestamps: true, // Crea automáticamente las columnas 'createdAt' y 'updatedAt'
-    tableName: 'users' // Nombre exacto de la tabla en MySQL
+    timestamps: true,
+    tableName: 'users'
 });
 
 module.exports = User;

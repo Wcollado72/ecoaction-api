@@ -1,5 +1,15 @@
+const AppError = require('../utils/appError');
+
 const errorHandler = (err, req, res, next) => {
     console.error('Global error handler:', err);
+
+    if (err instanceof AppError) {
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message,
+            ...(err.errors && { errors: err.errors })
+        });
+    }
 
     if (err.name === 'SequelizeValidationError') {
         return res.status(400).json({
@@ -13,7 +23,7 @@ const errorHandler = (err, req, res, next) => {
     }
 
     if (err.name === 'SequelizeUniqueConstraintError') {
-        return res.status(400).json({
+        return res.status(409).json({
             success: false,
             message: 'Duplicate value error.',
             errors: err.errors.map(error => ({
