@@ -1,6 +1,7 @@
 // Import Express and required dependencies
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const sequelize = require('./config/db');
 
 // Import application routes
@@ -19,6 +20,11 @@ const app = express();
 // Global middlewares
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
+
+app.get('/', (req, res) => {
+    return res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 // Health check route
 app.get('/api/health', (req, res) => {

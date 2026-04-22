@@ -1,0 +1,385 @@
+:root {
+    --eco-primary: #254f3d;
+    --eco-primary-dark: #19372b;
+    --eco-secondary: #5f8f74;
+    --eco-accent: #dce991;
+    --eco-soft: #edf5ee;
+    --eco-border: #d4e0d7;
+    --eco-text: #1f3128;
+    --eco-muted: #61756a;
+    --eco-bg: #f3f5ef;
+    --eco-card: rgba(255, 255, 255, 0.94);
+    --eco-card-border: rgba(37, 79, 61, 0.10);
+    --eco-danger-bg: #ffe5e5;
+    --eco-danger-text: #8a1c1c;
+    --eco-success-bg: #e8fff1;
+    --eco-success-text: #166534;
+    --eco-shadow: 0 18px 50px rgba(28, 52, 40, 0.10);
+
+    --hero-text: #f8fbf7;
+    --hero-muted: rgba(248, 251, 247, 0.88);
+    --hero-badge-bg: rgba(255, 255, 255, 0.16);
+    --hero-badge-border: rgba(255, 255, 255, 0.24);
+    --hero-badge-text: #f8fbf7;
+
+    --panel-text: #f6faf5;
+    --panel-muted: rgba(246, 250, 245, 0.88);
+    --panel-border: rgba(255, 255, 255, 0.18);
+    --panel-surface: rgba(255, 255, 255, 0.12);
+    --panel-surface-strong: rgba(255, 255, 255, 0.18);
+}
+
+/* Global page background */
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(220, 233, 145, 0.20), transparent 25%),
+        radial-gradient(circle at top right, rgba(95, 143, 116, 0.18), transparent 22%),
+        linear-gradient(180deg, #f7f9f4 0%, var(--eco-bg) 100%);
+    color: var(--eco-text);
+}
+
+/* Main application shell */
+.app-shell {
+    padding-top: 2.5rem;
+    padding-bottom: 3rem;
+}
+
+/* HERO SECTION */
+
+.hero-section {
+    position: relative;
+    min-height: 440px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    padding: 2.25rem;
+    border-radius: 1.6rem;
+    overflow: hidden;
+    background-image: url("./assets/eco-hero.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    box-shadow: 0 24px 56px rgba(25, 55, 43, 0.18);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(135deg, rgba(14, 30, 23, 0.58), rgba(29, 67, 51, 0.42)),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.22));
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
+
+.eyebrow {
+    display: inline-block;
+    margin-bottom: 0.85rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--hero-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+}
+
+.hero-section h1 {
+    margin-bottom: 0.85rem;
+    color: var(--hero-text);
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    line-height: 1.05;
+}
+
+.hero-text {
+    max-width: 680px;
+    margin-bottom: 1rem;
+    color: var(--hero-muted);
+    font-size: 1.08rem;
+}
+
+.hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--hero-badge-border);
+    border-radius: 999px;
+    background: var(--hero-badge-bg);
+    color: var(--hero-badge-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+}
+
+/* TWO-COLUMN LAYOUT FOR AUTH + DASHBOARD */
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+/* PANEL BASE */
+
+.card-panel {
+    position: relative;
+    border-radius: 1.35rem;
+    overflow: hidden;
+    box-shadow: var(--eco-shadow);
+    height: 100%;
+}
+
+/* SHARED IMAGE PANEL STYLING */
+.image-panel {
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* AUTH PANEL BACKGROUND */
+.auth-panel {
+    background-image: url("./assets/auth-bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* DASHBOARD PANEL BACKGROUND */
+.dashboard-panel {
+    background-image: url("./assets/dashboard-bg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* OVERLAY TO PROTECT TEXT READABILITY */
+.panel-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(160deg, rgba(18, 38, 29, 0.56), rgba(40, 74, 57, 0.40)),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.20));
+    z-index: 1;
+}
+
+/* INNER CONTENT */
+.panel-content {
+    position: relative;
+    z-index: 2;
+    padding: var(--pico-block-spacing-vertical) var(--pico-block-spacing-horizontal);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* HEADINGS AND LIGHT TEXT */
+
+.auth-panel h2,
+.dashboard-panel h2 {
+    color: var(--panel-text);
+}
+
+.panel-text-light {
+    color: var(--panel-muted);
+}
+
+.light-label {
+    color: var(--panel-text);
+    font-weight: 700;
+}
+
+/* FORM STYLE */
+
+.glass-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.glass-form input,
+.glass-form select,
+.glass-form textarea {
+    background-color: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    color: #173126;
+}
+
+.glass-form input::placeholder,
+.glass-form textarea::placeholder {
+    color: #5f766c;
+}
+
+/* BUTTONS */
+
+.button-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.light-button {
+    background: rgba(255, 255, 255, 0.10);
+    color: var(--panel-text);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(8px);
+}
+
+.light-button:hover,
+.light-button:focus {
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--panel-text);
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+.light-solid-button {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--eco-primary-dark);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.light-solid-button:hover,
+.light-solid-button:focus {
+    background: #ffffff;
+    color: var(--eco-primary-dark);
+    border-color: #ffffff;
+}
+
+/* ALERTS */
+
+.alert-box {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.alert-box.error {
+    background: var(--eco-danger-bg);
+    color: var(--eco-danger-text);
+    border: 1px solid #f5bcbc;
+}
+
+.alert-box.success {
+    background: var(--eco-success-bg);
+    color: var(--eco-success-text);
+    border: 1px solid #b7e7c8;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* DASHBOARD INNER LAYOUT */
+
+.dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.dashboard-placeholder {
+    display: grid;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex: 1;
+    align-content: start;
+}
+
+.placeholder-box {
+    padding: 1.25rem;
+    border-radius: 1rem;
+}
+
+.placeholder-box-light {
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(10px);
+}
+
+.placeholder-box-light h3 {
+    margin-bottom: 0.5rem;
+    color: var(--panel-text);
+}
+
+.placeholder-box-light p {
+    color: var(--panel-muted);
+}
+
+/* GLOBAL INPUT/BUTTON RADIUS */
+
+button,
+input,
+select,
+textarea {
+    border-radius: 0.9rem !important;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+    .hero-section {
+        min-height: 380px;
+        padding: 1.75rem;
+        background-position: center;
+    }
+
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .image-panel {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .hero-section,
+    .card-panel {
+        border-radius: 1rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+    }
+
+    .button-row {
+        flex-direction: column;
+    }
+
+    .button-row button {
+        width: 100%;
+    }
+
+    .hero-badges {
+        gap: 0.5rem;
+    }
+
+    .hero-badge {
+        font-size: 0.82rem;
+    }
+}

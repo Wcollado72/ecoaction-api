@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoAction Task Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <main class="container app-shell">
+        <section class="hero-section">
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+                <p class="eyebrow">EcoAction Frontend Prototype</p>
+                <h1>EcoAction Task Dashboard</h1>
+                <p class="hero-text">
+                    A clean and modern task management interface designed to work with the EcoAction REST API.
+                    This dashboard will allow users to register, log in, manage tasks, apply filters,
+                    and interact with the backend through a polished visual experience.
+                </p>
+
+                <div class="hero-badges">
+                    <span class="hero-badge">REST API</span>
+                    <span class="hero-badge">JWT Auth</span>
+                    <span class="hero-badge">Task Filters</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid layout-grid">
+            <article class="card-panel auth-panel image-panel">
+                <div class="panel-overlay"></div>
+                <div class="panel-content">
+                    <header>
+                        <h2>Authentication</h2>
+                        <p class="section-text panel-text-light">
+                            This section will handle user registration and login using the API.
+                        </p>
+                    </header>
+
+                    <div class="button-row">
+                        <button id="show-register-btn" class="secondary light-button" type="button">Register</button>
+                        <button id="show-login-btn" class="light-solid-button" type="button">Login</button>
+                    </div>
+
+                    <div id="alert-box" class="alert-box hidden" role="alert"></div>
+
+                    <form id="auth-form" class="glass-form">
+                        <label for="auth-email" class="light-label">Email</label>
+                        <input
+                            type="email"
+                            id="auth-email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                        <label for="auth-password" class="light-label">Password</label>
+                        <input
+                            type="password"
+                            id="auth-password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button id="auth-submit-btn" class="light-solid-button" type="submit">Login</button>
+                    </form>
+                </div>
+            </article>
+
+            <article class="card-panel dashboard-panel image-panel">
+                <div class="panel-overlay"></div>
+                <div class="panel-content">
+                    <header class="dashboard-header">
+                        <div>
+                            <h2>Dashboard</h2>
+                            <p class="section-text panel-text-light">
+                                Task management features will appear here after authentication is connected.
+                            </p>
+                        </div>
+
+                        <button id="logout-btn" type="button" class="light-button hidden">
+                            Logout
+                        </button>
+                    </header>
+
+                    <div class="dashboard-placeholder">
+                        <div class="placeholder-box placeholder-box-light">
+                            <h3>Task Form</h3>
+                            <p>
+                                This area will contain the create and update task form.
+                            </p>
+                        </div>
+
+                        <div class="placeholder-box placeholder-box-light">
+                            <h3>Filters</h3>
+                            <p>
+                                This area will contain the status and due date filters.
+                            </p>
+                        </div>
+
+                        <div class="placeholder-box placeholder-box-light">
+                            <h3>Task List</h3>
+                            <p>
+                                This area will display tasks returned by the API.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script src="./app.js"></script>
+</body>
+</html>

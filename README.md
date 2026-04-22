@@ -1,140 +1,164 @@
-# EcoAction API – Task Management REST API
+# EcoAction Task Management API
 
-EcoAction API is a RESTful backend built with Node.js, Express, Sequelize and MySQL.  
-It allows users to register, authenticate with JWT, and manage personal tasks (to‑do list) with full CRUD operations and filters by status and due date.
+EcoAction is a RESTful API for managing tasks (to‑do list) with user accounts, authentication via JWT, and task filters by status and due date.  
+It was built as a final project to practice backend fundamentals: routing, database integration, authentication, validation, error handling, and project structure.
+
+In addition to the API, this project includes a simple frontend prototype (HTML/CSS/JS) that is served by the same Express server to visualize the dashboard layout.
+
+---
+
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Setup & Run](#setup--run)
+- [Database Models](#database-models)
+- [API Endpoints](#api-endpoints)
+  - [Auth Endpoints](#auth-endpoints)
+  - [Task Endpoints](#task-endpoints)
+  - [Health Check](#health-check)
+- [Frontend Overview](#frontend-overview)
+- [Validation & Error Handling](#validation--error-handling)
+- [Testing with Postman](#testing-with-postman)
+- [Requirements Checklist](#requirements-checklist)
+- [Submission Checklist](#submission-checklist)
+
+---
+
+## Tech Stack
+
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MySQL (via Sequelize ORM)
+- **Authentication:** JWT (JSON Web Token)
+- **Password Hashing:** bcrypt
+- **Environment Variables:** dotenv
+- **CORS:** cors
+- **Frontend Prototype:** Static HTML + CSS (Pico CSS + custom styles) + vanilla JS, served from `public/`
 
 ---
 
 ## Features
 
-- User registration with email and hashed password (bcrypt)
-- User login with JSON Web Tokens (JWT)
-- Authentication middleware that protects all task routes
+- User registration with encrypted passwords.
+- User login with JWT authentication.
+- Protected task routes (only authenticated users can access their tasks).
 - Task CRUD:
-  - Create a task
-  - Get all tasks for the authenticated user
-  - Get a single task by id
-  - Update a task
-  - Delete a task
-- Task filters:
-  - Filter tasks by `status` (`pending`, `in_progress`, `done`)
-  - Filter tasks by `due_date` (all tasks due on a specific day)
-- Global error handling with consistent JSON responses
-- Health check endpoint to verify API availability
-- Environment-based configuration with `.env` and `.env.example`
-- Docker Compose file to run MySQL in a container
-
----
-
-## Technologies
-
-- Node.js
-- Express
-- MySQL + Sequelize ORM
-- JWT (jsonwebtoken)
-- bcrypt
-- dotenv
-- cors
-- Docker (for local MySQL)
+  - Create task
+  - Get all tasks (per user)
+  - Get one task (per user)
+  - Update task
+  - Delete task
+- Filters:
+  - Filter tasks by `status`
+  - Filter tasks by `due_date`
+- Validations:
+  - Required fields
+  - Email format
+  - Allowed values for `status`
+- Centralized error handling with consistent JSON responses.
+- Basic frontend dashboard prototype to illustrate how a client could consume the API.
 
 ---
 
 ## Project Structure
 
-```text
-ecoaction-api/
-├─ src/
-│  ├─ app.js
-│  ├─ config/
-│  │  └─ db.js
-│  ├─ controllers/
-│  │  ├─ authController.js
-│  │  └─ taskController.js
-│  ├─ middlewares/
-│  │  ├─ authMiddleware.js
-│  │  └─ errorHandler.js
-│  ├─ models/
-│  │  ├─ User.js
-│  │  └─ Task.js
-│  ├─ routes/
-│  │  ├─ authRoutes.js
-│  │  └─ taskRoutes.js
-│  └─ utils/
-│     └─ appError.js
-├─ .env
-├─ .env.example
-├─ docker-compose.yml
-├─ package.json
-└─ package-lock.json
+```bash
+.
+├── src
+│   ├── app.js                 # Express app and server startup
+│   ├── config
+│   │   └── db.js              # Sequelize database configuration
+│   ├── controllers
+│   │   ├── authController.js  # Register and login logic
+│   │   └── taskController.js  # Task CRUD and filters
+│   ├── middlewares
+│   │   ├── authMiddleware.js  # JWT authentication middleware
+│   │   └── errorHandler.js    # Global error handling middleware
+│   ├── models
+│   │   ├── User.js            # User model (id, email, password, timestamps)
+│   │   └── Task.js            # Task model (id, title, description, status, due_date, userId)
+│   ├── routes
+│   │   ├── authRoutes.js      # /api/auth routes
+│   │   └── taskRoutes.js      # /api/tasks routes (protected)
+│   └── utils
+│       └── appError.js        # Custom error class
+│
+├── public
+│   ├── index.html             # EcoAction dashboard frontend prototype
+│   ├── styles.css             # Custom styles for the dashboard
+│   ├── app.js                 # Frontend behavior (auth mode toggling, messages)
+│   └── assets
+│       ├── eco-hero.png       # Hero background image
+│       ├── auth-bg.png        # Authentication panel background
+│       └── dashboard-bg.png   # Dashboard panel background
+│
+├── .env                       # Local environment variables (not committed)
+├── .env.example               # Example env variables for documentation
+├── package.json               # Dependencies and scripts
+└── README.md                  # Project documentation
 ```
 
 ---
 
-## Getting Started
+## Environment Variables
 
-### 1. Clone the repository
-
-```bash
-git clone <your-repo-url>.git
-cd ecoaction-api
-```
-
-### 2. Install dependencies
+Create a `.env` file in the root directory based on `.env.example`:
 
 ```bash
-npm install
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=ecoaction_db
+
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=1h
 ```
 
-### 3. Configure environment variables
+Description:
 
-Create a `.env` file in the project root based on `.env.example`:
+- `PORT` – HTTP server port (default 3000).
+- `DB_*` – MySQL connection settings.
+- `JWT_SECRET` – secret key used to sign JWT tokens.
+- `JWT_EXPIRES_IN` – token expiration (e.g. `1h`, `2h`, `7d`).
 
-```bash
-cp .env.example .env
-```
+---
 
-Then update the values with your local configuration.
+## Setup & Run
 
-Main variables:
+1. **Install dependencies:**
 
-- `PORT` – API port (default: `3000`)
-- `DB_HOST` – MySQL host (for local Docker: `localhost`)
-- `DB_USER` – MySQL user (for Docker example: `root`)
-- `DB_PASS` – MySQL password
-- `DB_NAME` – MySQL database name (`ecoaction_db`)
-- `DB_PORT` – MySQL port (Docker example uses `3307` on host)
-- `JWT_SECRET` – secret key used to sign JWT tokens
-- `JWT_EXPIRES_IN` – token expiration (for example: `1h`)
+   ```bash
+   npm install
+   ```
 
-### 4. Start MySQL with Docker (optional but recommended)
+2. **Create `.env` file:**
 
-The project includes a `docker-compose.yml` that runs a MySQL 8.0 container.
+   ```bash
+   cp .env.example .env
+   # Then edit .env and set your own values
+   ```
 
-```bash
-docker compose up -d
-```
+3. **Check database connection settings** in `.env` and make sure the MySQL server is running and the database exists.
 
-This will:
+4. **Start the server:**
 
-- Create a container named `ecoaction_mysql`
-- Expose MySQL on port `3307` on your machine
-- Create a database named `ecoaction_db`
+   ```bash
+   npm start
+   ```
 
-Make sure `.env` matches these values.
+5. The API will be available at:
 
-### 5. Run the API
+   - `http://localhost:3000/api/...`
 
-During development you can run the API with Node directly:
+   The frontend dashboard prototype will be available at:
 
-```bash
-node src/app.js
-```
-
-If everything is configured correctly, you should see:
-
-- A successful connection message to MySQL
-- Tables synchronized successfully
-- Server running at `http://localhost:3000`
+   - `http://localhost:3000/`
 
 ---
 
@@ -142,49 +166,236 @@ If everything is configured correctly, you should see:
 
 ### User
 
-Table: `users`
-
-Fields:
-
-- `id` – integer, primary key, auto‑increment
-- `email` – string, required, unique, trimmed and stored in lowercase, valid email format
-- `password` – string, required (stored as bcrypt hash)
-- `createdAt`, `updatedAt` – timestamps (managed by Sequelize)
-
-Validation:
-
-- Email is required, must be a valid email and between 5 and 255 characters.
-- Password is required and validated at controller level (minimum length, not empty).
+| Field      | Type        | Notes                        |
+|-----------|-------------|------------------------------|
+| `id`      | INTEGER     | Primary key, auto-increment  |
+| `email`   | STRING      | Unique, validated as email   |
+| `password`| STRING      | Hashed with bcrypt           |
+| `createdAt` | DATE      | Managed by Sequelize         |
+| `updatedAt` | DATE      | Managed by Sequelize         |
 
 ### Task
 
-Table: `tasks`
+| Field        | Type        | Notes                                                   |
+|-------------|-------------|---------------------------------------------------------|
+| `id`        | INTEGER     | Primary key, auto-increment                             |
+| `title`     | STRING      | Required                                                |
+| `description` | TEXT      | Optional                                                |
+| `status`    | ENUM        | One of: `pending`, `in_progress`, `done`               |
+| `due_date`  | DATE        | Optional                                                |
+| `userId`    | INTEGER     | Foreign key to `User.id` (1 user → many tasks)         |
+| `createdAt` | DATE        | Managed by Sequelize                                    |
+| `updatedAt` | DATE        | Managed by Sequelize                                    |
 
-Fields:
+Relationship:
 
-- `id` – integer, primary key, auto‑increment
-- `title` – string, required, 3–100 characters
-- `description` – text, optional
-- `status` – ENUM, required, values: `pending`, `in_progress`, `done`
-- `due_date` – date/time, optional
-- `userId` – foreign key to `users.id`
-- `createdAt`, `updatedAt` – timestamps
-
-Relationships:
-
-- One `User` has many `Task` (`User.hasMany(Task)`)
-- One `Task` belongs to one `User` (`Task.belongsTo(User)`)
+- One **User** has many **Tasks**
+- One **Task** belongs to exactly one **User**
 
 ---
 
 ## API Endpoints
 
-All responses are JSON.
+Base URL (local):
+
+```text
+http://localhost:3000
+```
+
+---
+
+### Auth Endpoints
+
+#### POST `/api/auth/register`
+
+Registers a new user.
+
+**Request body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "MyStrongPassword123"
+}
+```
+
+**Responses:**
+
+- `201 Created` – user registered successfully
+- `400 Bad Request` – validation error (missing fields, invalid email, etc.)
+- `409 Conflict` – email already in use
+
+---
+
+#### POST `/api/auth/login`
+
+Logs in an existing user and returns a JWT.
+
+**Request body:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "MyStrongPassword123"
+}
+```
+
+**Responses:**
+
+- `200 OK` – returns a token and user info
+- `400 Bad Request` – validation error
+- `401 Unauthorized` – invalid credentials
+
+Typical successful response:
+
+```json
+{
+  "success": true,
+  "message": "Login successful.",
+  "token": "JWT_TOKEN_HERE",
+  "user": {
+    "id": 1,
+    "email": "user@example.com"
+  }
+}
+```
+
+---
+
+### Task Endpoints
+
+All task endpoints require a valid JWT in the `Authorization` header:
+
+```http
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+---
+
+#### POST `/api/tasks`
+
+Create a new task.
+
+**Request body:**
+
+```json
+{
+  "title": "Finish project",
+  "description": "Complete all final project requirements",
+  "status": "pending",
+  "due_date": "2026-05-13"
+}
+```
+
+**Responses:**
+
+- `201 Created` – task created
+- `400 Bad Request` – validation error
+- `401 Unauthorized` – missing or invalid token
+
+---
+
+#### GET `/api/tasks`
+
+Get all tasks for the authenticated user. Optional filters:
+
+- `status` – `pending`, `in_progress`, `done`
+- `due_date` – `YYYY-MM-DD`
+
+**Examples:**
+
+- Get all tasks:
+
+  ```http
+  GET /api/tasks
+  ```
+
+- Filter by status:
+
+  ```http
+  GET /api/tasks?status=pending
+  ```
+
+- Filter by due date:
+
+  ```http
+  GET /api/tasks?due_date=2026-05-13
+  ```
+
+**Responses:**
+
+- `200 OK` – returns a list of tasks
+- `400 Bad Request` – invalid filter value
+- `401 Unauthorized` – missing or invalid token
+
+---
+
+#### GET `/api/tasks/:id`
+
+Get a single task belonging to the authenticated user.
+
+**Example:**
+
+```http
+GET /api/tasks/1
+```
+
+**Responses:**
+
+- `200 OK` – returns the task
+- `404 Not Found` – task does not exist or does not belong to the user
+
+---
+
+#### PUT `/api/tasks/:id`
+
+Update a task.
+
+**Request body:**
+
+Any combination of the following fields:
+
+```json
+{
+  "title": "Updated title",
+  "description": "Updated description",
+  "status": "in_progress",
+  "due_date": "2026-05-15"
+}
+```
+
+**Responses:**
+
+- `200 OK` – task updated
+- `400 Bad Request` – invalid status or data
+- `404 Not Found` – task not found or not owned by user
+
+---
+
+#### DELETE `/api/tasks/:id`
+
+Delete a task.
+
+**Example:**
+
+```http
+DELETE /api/tasks/1
+```
+
+**Responses:**
+
+- `200 OK` – task deleted
+- `404 Not Found` – task not found or not owned by user
+
+---
 
 ### Health Check
 
-**GET** `/api/health`  
-Response:
+#### GET `/api/health`
+
+Simple endpoint to confirm the API is running.
+
+**Response:**
 
 ```json
 {
@@ -195,375 +406,119 @@ Response:
 
 ---
 
-### Authentication
+## Frontend Overview
 
-#### Register
+The project includes a small frontend prototype to demonstrate how a client might interact with the API.
 
-**POST** `/api/auth/register`
+- **URL:** `http://localhost:3000/`
+- **Files:**
+  - `public/index.html` – layout for hero, Authentication panel, and Dashboard panel.
+  - `public/styles.css` – visual design (backgrounds, overlays, layout).
+  - `public/app.js` – simple logic for switching between login and register modes and showing placeholder messages.
 
-Request body:
+The frontend does **not** replace the API testing process. It is a visual enhancement to the project, showing:
 
-```json
-{
-  "email": "test@example.com",
-  "password": "123456"
-}
-```
-
-Example success response:
-
-```json
-{
-  "success": true,
-  "message": "User registered successfully.",
-  "data": {
-    "id": 1,
-    "email": "test@example.com"
-  }
-}
-```
-
-Validation / error cases:
-
-- Missing `email` or `password` → `400 Bad Request` with:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Email is required."
-    }
-  ]
-}
-```
-
-- Password too short → `400 Bad Request`:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "password",
-      "message": "Password must be at least 6 characters long."
-    }
-  ]
-}
-```
-
-- Email already registered → `409 Conflict`:
-
-```json
-{
-  "success": false,
-  "message": "This email is already registered.",
-  "errors": [
-    {
-      "field": "email",
-      "message": "This email is already registered."
-    }
-  ]
-}
-```
-
-#### Login
-
-**POST** `/api/auth/login`
-
-Request body:
-
-```json
-{
-  "email": "test@example.com",
-  "password": "123456"
-}
-```
-
-Example success response:
-
-```json
-{
-  "success": true,
-  "message": "Login successful.",
-  "token": "<JWT_TOKEN_HERE>",
-  "user": {
-    "id": 1,
-    "email": "test@example.com"
-  }
-}
-```
-
-Error case (invalid credentials):
-
-```json
-{
-  "success": false,
-  "message": "Invalid credentials."
-}
-```
+- a hero with an EcoAction introduction,
+- an Authentication card with background image and glassmorphism form,
+- a Dashboard card with background image and placeholders for:
+  - task form,
+  - filters,
+  - task list.
 
 ---
 
-### Authentication – Using the Token
+## Validation & Error Handling
 
-For all `/api/tasks` endpoints, you must send the JWT in the `Authorization` header as a Bearer token:
-
-```http
-Authorization: Bearer <JWT_TOKEN_HERE>
-```
-
-In Postman:
-
-- Go to the **Authorization** tab
-- Select **Bearer Token**
-- Paste the token in the token field (without adding `Bearer` manually if Postman does it for you)
+- Required fields are validated (e.g., `email`, `password`, `title`).
+- Email address is validated as proper format.
+- Task `status` is restricted to `pending`, `in_progress`, `done`.
+- Errors are handled by a global error middleware and return consistent JSON responses, including:
+  - `success: false`
+  - `message: <error description>`
+  - Optional details for debugging in development mode.
 
 ---
 
-### Tasks – CRUD
+## Testing with Postman
 
-#### Create Task
+A Postman collection is included with:
 
-**POST** `/api/tasks`
+- Auth:
+  - Register
+  - Login
+- Tasks:
+  - Create task
+  - Get all tasks
+  - Get task by id
+  - Update task
+  - Delete task
+  - Filter by status
+  - Filter by due_date
+- Health:
+  - GET `/api/health`
 
-Headers:
+Steps:
 
-```http
-Authorization: Bearer <JWT_TOKEN_HERE>
-Content-Type: application/json
-```
-
-Request body:
-
-```json
-{
-  "title": "Finish final project",
-  "description": "Complete API documentation and testing",
-  "status": "pending",
-  "due_date": "2026-05-13T18:00:00.000Z"
-}
-```
-
-Example success response:
-
-```json
-{
-  "success": true,
-  "message": "Task created successfully.",
-  "data": {
-    "id": 1,
-    "title": "Finish final project",
-    "description": "Complete API documentation and testing",
-    "status": "pending",
-    "due_date": "2026-05-13T18:00:00.000Z",
-    "userId": 1,
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Validation error examples:
-
-- Missing title:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "title",
-      "message": "Title is required."
-    }
-  ]
-}
-```
-
-- Invalid status:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "status",
-      "message": "Invalid status value. Allowed values: pending, in_progress, done."
-    }
-  ]
-}
-```
-
-#### Get All Tasks
-
-**GET** `/api/tasks`
-
-Headers:
-
-```http
-Authorization: Bearer <JWT_TOKEN_HERE>
-```
-
-Example response:
-
-```json
-{
-  "success": true,
-  "count": 1,
-  "data": [
-    {
-      "id": 1,
-      "title": "Finish final project",
-      "description": "Complete API documentation and testing",
-      "status": "pending",
-      "due_date": "2026-05-13T18:00:00.000Z",
-      "userId": 1,
-      "createdAt": "...",
-      "updatedAt": "..."
-    }
-  ]
-}
-```
-
-#### Get Task by ID
-
-**GET** `/api/tasks/:id`
-
-Example: `GET /api/tasks/1`
-
-Headers: same Authorization as above.
-
-Response (success):
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "title": "Finish final project",
-    "description": "Complete API documentation and testing",
-    "status": "pending",
-    "due_date": "2026-05-13T18:00:00.000Z",
-    "userId": 1,
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-If the task does not exist or does not belong to the user:
-
-```json
-{
-  "success": false,
-  "message": "Task not found."
-}
-```
-
-#### Update Task
-
-**PUT** `/api/tasks/:id`
-
-Example: `PUT /api/tasks/1`
-
-Request body (any combination of fields):
-
-```json
-{
-  "title": "Finish final project (updated)",
-  "status": "in_progress"
-}
-```
-
-Example success response:
-
-```json
-{
-  "success": true,
-  "message": "Task updated successfully.",
-  "data": {
-    "id": 1,
-    "title": "Finish final project (updated)",
-    "description": "Complete API documentation and testing",
-    "status": "in_progress",
-    "due_date": "2026-05-13T18:00:00.000Z",
-    "userId": 1,
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Validation error examples:
-
-- Empty title:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "title",
-      "message": "Title cannot be empty."
-    }
-  ]
-}
-```
-
-- Invalid status:
-
-```json
-{
-  "success": false,
-  "message": "Validation error.",
-  "errors": [
-    {
-      "field": "status",
-      "message": "Invalid status value. Allowed values: pending, in_progress, done."
-    }
-  ]
-}
-```
-
-If the task does not exist or does not belong to the user:
-
-```json
-{
-  "success": false,
-  "message": "Task not found."
-}
-```
-
-#### Delete Task
-
-**DELETE** `/api/tasks/:id`
-
-Example: `DELETE /api/tasks/1`
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Task deleted successfully."
-}
-```
-
-If the task does not exist or does not belong to the user:
-
-```json
-{
-  "success": false,
-  "message": "Task not found."
-}
-```
+1. Import the Postman collection.
+2. Set the base URL (e.g., `http://localhost:3000`).
+3. Perform:
+   - Registration
+   - Login
+   - Copy the JWT token
+   - Paste token into the `Authorization` header of task requests.
 
 ---
 
-### Task 
+## Requirements Checklist
+
+Backend:
+
+- [x] Project initialization with Node.js and Express.
+- [x] Basic server and test route.
+- [x] Database configuration using environment variables.
+- [x] User and Task models with a one‑to‑many relationship.
+- [x] User registration endpoint with password hashing (bcrypt).
+- [x] Login endpoint with JWT generation.
+- [x] Authentication middleware to protect task routes.
+- [x] Task CRUD endpoints (create, read, update, delete).
+- [x] Filter tasks by `status`.
+- [x] Filter tasks by `due_date`.
+- [x] Validation for required fields and email format.
+- [x] Validation for allowed `status` values.
+- [x] Global error handling and consistent error responses.
+- [x] API documentation and Postman collection.
+
+Frontend (optional enhancement):
+
+- [x] Simple dashboard prototype served from `/public`.
+- [x] Authentication and Dashboard panels with background images.
+- [x] Symmetric layout for both panels on desktop.
+- [x] Responsive behavior on smaller screens.
+
+Delivery:
+
+- [x] Source code.
+- [x] GitHub repository.
+- [x] README.md.
+- [x] Postman collection.
+- [ ] Screenshots of each step.
+- [ ] Video presentation of the project.
+- [ ] ZIP file with the project content.
+
+---
+
+## Submission Checklist
+
+Before submitting the final project:
+
+- [x] All API requirements implemented and tested locally.
+- [x] Frontend prototype working at `http://localhost:3000/`.
+- [ ] Screenshots captured (server running, Postman tests, frontend views).
+- [ ] Video recorded showing:
+  - Server start
+  - Health check
+  - Register and login
+  - Task CRUD and filters
+  - Frontend overview
+- [ ] ZIP file created with the entire project (source, README, Postman collection, screenshots).
+- [x] Latest code pushed to GitHub with this README included.
