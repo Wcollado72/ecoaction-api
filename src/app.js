@@ -1,74 +1,82 @@
-// Import Express and required dependencies
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const sequelize = require('./config/db');
+// File: src/app.js
+// Description: Express application entry point.
+// Loads environment variables, configures middleware, mounts routes,
+// and registers the global error handler AFTER all routes.
 
-// Import application routes
+// Load .env variables FIRST — before any other require that might need them
+require('dotenv').config();
+
+const express    = require('express');
+const path       = require('path');
+const cors       = require('cors');
+const sequelize  = require('./config/db');
+
+// Routes
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 
-// Import models so Sequelize can register them before syncing
-const User = require('./models/User');
-const Task = require('./models/Task');
+// Models — must be imported so Sequelize registers them before sync()
+const User = require('./models/User'); // eslint-disable-line no-unused-vars
+const Task = require('./models/Task'); // eslint-disable-line no-unused-vars
 
-// Import global error handler
+// Global error handler (registered AFTER routes — this is critical)
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Global middlewares
+// ─── MIDDLEWARE ────────────────────────────────────────────────────────────────
+
+// Allow cross-origin requests (useful when frontend is served separately in dev)
 app.use(cors());
+
+// Parse incoming JSON request bodies
 app.use(express.json());
+
+// Serve the static frontend files from /public
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.get('/', (req, res) => {
-    return res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+// ─── ROUTES ────────────────────────────────────────────────────────────────────
 
-// Health check route
-app.get('/api/health', (req, res) => {
-    return res.status(200).json({
-        success: true,
-        message: 'API is running successfully.'
-    });
-});
-
-// Route registration
-// All authentication routes will start with /api/auth
-app.use('/api/auth', authRoutes);
-
-// All task routes will start with /api/tasks
+// API routes
+app.use('/api/auth',  authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Handle unknown routes
-app.use((req, res) => {
-    return res.status(404).json({
-        success: false,
-        message: 'Route not found.'
+// Health check — useful for uptime monitors and deployment pipelines
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status:    'ok',
+        timestamp: new Date().toISOString()
     });
 });
 
-// Global error handling middleware
+// Fallback: serve index.html for any unknown route (SPA support)
+// Express 5 requires a named wildcard parameter instead of bare '*'
+app.get('/{*path}', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// ─── GLOBAL ERROR HANDLER ──────────────────────────────────────────────────────
+// MUST be registered after all routes — Express identifies error handlers
+// by their 4-argument signature (err, req, res, next).
 app.use(errorHandler);
 
-// Server startup function
+// ─── SERVER STARTUP ────────────────────────────────────────────────────────────
+
 const startServer = async () => {
     try {
-        // Sync all models with the database
-        // { alter: true } updates the tables to match model changes during development
+        // Sync models with the database (alter: true updates tables without data loss)
         await sequelize.sync({ alter: true });
-        console.log('✅ Database tables synchronized successfully.');
+        console.log('✅ Database synchronized successfully.');
 
         const PORT = process.env.PORT || 3000;
-
         app.listen(PORT, () => {
-            console.log(`🚀 EcoAction API is running at http://localhost:${PORT}`);
+            console.log(`🌿 EcoAction API running at http://localhost:${PORT}`);
+            console.log(`   Health check: http://localhost:${PORT}/api/health`);
         });
     } catch (error) {
         console.error('❌ Error starting the server:', error);
+        process.exit(1);
     }
 };
 
-// Start the application
 startServer();

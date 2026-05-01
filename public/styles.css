@@ -1,51 +1,53 @@
+/* ── EcoAction Styles ─────────────────────────────────────────────────────── */
+
 :root {
-    --eco-primary: #254f3d;
+    --eco-primary:      #254f3d;
     --eco-primary-dark: #19372b;
-    --eco-secondary: #5f8f74;
-    --eco-accent: #dce991;
-    --eco-soft: #edf5ee;
-    --eco-border: #d4e0d7;
-    --eco-text: #1f3128;
-    --eco-muted: #61756a;
-    --eco-bg: #f3f5ef;
-    --eco-card: rgba(255, 255, 255, 0.94);
-    --eco-card-border: rgba(37, 79, 61, 0.10);
-    --eco-danger-bg: #ffe5e5;
-    --eco-danger-text: #8a1c1c;
-    --eco-success-bg: #e8fff1;
+    --eco-secondary:    #5f8f74;
+    --eco-accent:       #dce991;
+    --eco-soft:         #edf5ee;
+    --eco-border:       #d4e0d7;
+    --eco-text:         #1f3128;
+    --eco-muted:        #61756a;
+    --eco-bg:           #f3f5ef;
+    --eco-card:         rgba(255, 255, 255, 0.94);
+    --eco-card-border:  rgba(37, 79, 61, 0.10);
+    --eco-danger-bg:    #ffe5e5;
+    --eco-danger-text:  #8a1c1c;
+    --eco-success-bg:   #e8fff1;
     --eco-success-text: #166534;
-    --eco-shadow: 0 18px 50px rgba(28, 52, 40, 0.10);
+    --eco-shadow:       0 18px 50px rgba(28, 52, 40, 0.10);
 
-    --hero-text: #f8fbf7;
-    --hero-muted: rgba(248, 251, 247, 0.88);
-    --hero-badge-bg: rgba(255, 255, 255, 0.16);
+    --hero-text:         #f8fbf7;
+    --hero-muted:        rgba(248, 251, 247, 0.88);
+    --hero-badge-bg:     rgba(255, 255, 255, 0.16);
     --hero-badge-border: rgba(255, 255, 255, 0.24);
-    --hero-badge-text: #f8fbf7;
+    --hero-badge-text:   #f8fbf7;
 
-    --panel-text: #f6faf5;
-    --panel-muted: rgba(246, 250, 245, 0.88);
-    --panel-border: rgba(255, 255, 255, 0.18);
-    --panel-surface: rgba(255, 255, 255, 0.12);
+    --panel-text:          #f6faf5;
+    --panel-muted:         rgba(246, 250, 245, 0.88);
+    --panel-border:        rgba(255, 255, 255, 0.18);
+    --panel-surface:       rgba(255, 255, 255, 0.12);
     --panel-surface-strong: rgba(255, 255, 255, 0.18);
 }
 
-/* Global page background */
+/* ── Global ───────────────────────────────────────────────────────────────── */
+
 body {
     min-height: 100vh;
     background:
-        radial-gradient(circle at top left, rgba(220, 233, 145, 0.20), transparent 25%),
+        radial-gradient(circle at top left,  rgba(220, 233, 145, 0.20), transparent 25%),
         radial-gradient(circle at top right, rgba(95, 143, 116, 0.18), transparent 22%),
         linear-gradient(180deg, #f7f9f4 0%, var(--eco-bg) 100%);
     color: var(--eco-text);
 }
 
-/* Main application shell */
 .app-shell {
     padding-top: 2.5rem;
     padding-bottom: 3rem;
 }
 
-/* HERO SECTION */
+/* ── Hero Section ─────────────────────────────────────────────────────────── */
 
 .hero-section {
     position: relative;
@@ -126,33 +128,30 @@ body {
     backdrop-filter: blur(8px);
 }
 
-/* TWO-COLUMN LAYOUT FOR AUTH + DASHBOARD */
+/* ── Two-Column Layout ────────────────────────────────────────────────────── */
 
 .layout-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
-    align-items: stretch;
+    align-items: start;
 }
 
-/* PANEL BASE */
+/* ── Card Panels ──────────────────────────────────────────────────────────── */
 
 .card-panel {
     position: relative;
     border-radius: 1.35rem;
     overflow: hidden;
     box-shadow: var(--eco-shadow);
-    height: 100%;
 }
 
-/* SHARED IMAGE PANEL STYLING */
 .image-panel {
-    min-height: 620px;
+    min-height: 640px;
     display: flex;
     flex-direction: column;
 }
 
-/* AUTH PANEL BACKGROUND */
 .auth-panel {
     background-image: url("./assets/auth-bg.png");
     background-size: cover;
@@ -160,7 +159,6 @@ body {
     background-repeat: no-repeat;
 }
 
-/* DASHBOARD PANEL BACKGROUND */
 .dashboard-panel {
     background-image: url("./assets/dashboard-bg.png");
     background-size: cover;
@@ -168,7 +166,6 @@ body {
     background-repeat: no-repeat;
 }
 
-/* OVERLAY TO PROTECT TEXT READABILITY */
 .panel-overlay {
     position: absolute;
     inset: 0;
@@ -178,7 +175,6 @@ body {
     z-index: 1;
 }
 
-/* INNER CONTENT */
 .panel-content {
     position: relative;
     z-index: 2;
@@ -186,26 +182,20 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
 }
 
-/* HEADINGS AND LIGHT TEXT */
+/* ── Panel Text ───────────────────────────────────────────────────────────── */
 
 .auth-panel h2,
 .dashboard-panel h2 {
     color: var(--panel-text);
 }
 
-.panel-text-light {
-    color: var(--panel-muted);
-}
+.panel-text-light { color: var(--panel-muted); }
+.light-label      { color: var(--panel-text); font-weight: 700; }
+.required-star    { color: #f9d77e; margin-left: 2px; }
 
-.light-label {
-    color: var(--panel-text);
-    font-weight: 700;
-}
-
-/* FORM STYLE */
+/* ── Glass Form ───────────────────────────────────────────────────────────── */
 
 .glass-form {
     display: flex;
@@ -222,17 +212,24 @@ body {
 }
 
 .glass-form input::placeholder,
-.glass-form textarea::placeholder {
-    color: #5f766c;
+.glass-form textarea::placeholder { color: #5f766c; }
+
+/* Two-column form row for Status + Due Date */
+.form-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
 }
 
-/* BUTTONS */
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
 
 .button-row {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
     margin-bottom: 1rem;
+    margin-top: 0.5rem;
 }
 
 .light-button {
@@ -240,6 +237,7 @@ body {
     color: var(--panel-text);
     border: 1px solid var(--panel-border);
     backdrop-filter: blur(8px);
+    cursor: pointer;
 }
 
 .light-button:hover,
@@ -252,7 +250,8 @@ body {
 .light-solid-button {
     background: rgba(255, 255, 255, 0.92);
     color: var(--eco-primary-dark);
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.90);
+    cursor: pointer;
 }
 
 .light-solid-button:hover,
@@ -262,7 +261,19 @@ body {
     border-color: #ffffff;
 }
 
-/* ALERTS */
+/* Danger button (delete) */
+.btn-danger {
+    background: rgba(180, 40, 40, 0.20) !important;
+    border-color: rgba(220, 80, 80, 0.35) !important;
+    color: #ffd6d6 !important;
+}
+
+.btn-danger:hover {
+    background: rgba(200, 40, 40, 0.38) !important;
+    color: #fff !important;
+}
+
+/* ── Alerts ───────────────────────────────────────────────────────────────── */
 
 .alert-box {
     margin-bottom: 1rem;
@@ -284,26 +295,26 @@ body {
     border: 1px solid #b7e7c8;
 }
 
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
-/* DASHBOARD INNER LAYOUT */
+/* ── Dashboard Header ─────────────────────────────────────────────────────── */
 
 .dashboard-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
-.dashboard-placeholder {
-    display: grid;
+.dashboard-body {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    margin-top: 0.75rem;
     flex: 1;
-    align-content: start;
 }
+
+/* ── Placeholder / Section Boxes ──────────────────────────────────────────── */
 
 .placeholder-box {
     padding: 1.25rem;
@@ -325,7 +336,319 @@ body {
     color: var(--panel-muted);
 }
 
-/* GLOBAL INPUT/BUTTON RADIUS */
+/* ── Logged-In Auth Card ──────────────────────────────────────────────────── */
+
+.logged-in-card {
+    margin-top: 0.5rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(10px);
+}
+
+.user-email-display {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--panel-text);
+    margin: 0.25rem 0 0.75rem;
+    word-break: break-all;
+}
+
+.auth-tip {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.logout-btn-full {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+/* ── Filter Bar ───────────────────────────────────────────────────────────── */
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.filter-row select,
+.filter-row input[type="date"] {
+    background-color: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    color: #173126;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 120px;
+}
+
+.filter-btn {
+    font-size: 0.88rem;
+    padding: 0.4rem 0.8rem;
+    white-space: nowrap;
+}
+
+/* ── Task List Header ─────────────────────────────────────────────────────── */
+
+.task-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.task-list-header h3 { margin: 0; }
+
+.task-count-badge {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--panel-muted);
+    margin-left: 0.4rem;
+}
+
+/* ── Task Cards ───────────────────────────────────────────────────────────── */
+
+.task-card {
+    background: rgba(255, 255, 255, 0.11);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem 0.85rem;
+    margin-bottom: 0.65rem;
+    backdrop-filter: blur(8px);
+    transition: background 0.15s ease;
+}
+
+.task-card:last-child { margin-bottom: 0; }
+
+.task-card:hover {
+    background: rgba(255, 255, 255, 0.17);
+}
+
+.task-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.task-title-text {
+    font-weight: 700;
+    color: var(--panel-text);
+    font-size: 0.97rem;
+    flex: 1;
+    line-height: 1.35;
+}
+
+.task-desc {
+    color: var(--panel-muted);
+    font-size: 0.875rem;
+    margin: 0.2rem 0 0.5rem;
+    line-height: 1.5;
+}
+
+.task-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.task-meta {
+    font-size: 0.83rem;
+    color: var(--panel-muted);
+}
+
+.no-date { opacity: 0.55; }
+
+.task-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.task-actions button {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.65rem;
+}
+
+/* ── Status Badges ────────────────────────────────────────────────────────── */
+
+.status-badge {
+    display: inline-block;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.badge-pending {
+    background: rgba(255, 200, 60, 0.22);
+    color: #ffe082;
+    border: 1px solid rgba(255, 210, 80, 0.30);
+}
+
+.badge-in_progress {
+    background: rgba(100, 180, 255, 0.20);
+    color: #90caf9;
+    border: 1px solid rgba(120, 190, 255, 0.30);
+}
+
+.badge-done {
+    background: rgba(100, 220, 140, 0.20);
+    color: #a5d6a7;
+    border: 1px solid rgba(120, 220, 150, 0.28);
+}
+
+/* ── Misc Text States ─────────────────────────────────────────────────────── */
+
+.no-tasks {
+    color: var(--panel-muted);
+    font-size: 0.92rem;
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+    line-height: 1.6;
+}
+
+.loading-text { color: var(--panel-muted); font-size: 0.9rem; text-align: center; padding: 1rem; }
+.error-text   { color: #ffa5a5; font-size: 0.9rem; text-align: center; padding: 1rem; }
+
+/* ── Password Visibility Toggle ───────────────────────────────────────────── */
+
+/* Wraps the input + eye button together */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* The input needs right padding so text never hides behind the button */
+.password-wrapper input {
+    width: 100%;
+    padding-right: 2.8rem !important;
+    box-sizing: border-box;
+}
+
+/* The eye toggle button — floats inside the input on the right */
+.toggle-password {
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 0.5rem !important;
+    cursor: pointer;
+    color: #7a9688;
+    opacity: 0.75;
+    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.toggle-password:hover,
+.toggle-password:focus {
+    opacity: 1;
+    color: var(--eco-primary);
+    background: rgba(37, 79, 61, 0.10) !important;
+    outline: none;
+}
+
+/* Eye is "active" (password visible) — icon turns green */
+.toggle-password.is-visible {
+    color: var(--eco-primary);
+    opacity: 1;
+}
+
+/* The SVG icon inside the button */
+.toggle-password svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* ── Forgot Password ──────────────────────────────────────────────────────── */
+
+.forgot-link-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.6rem;
+}
+
+/* Invisible-background button that looks like a hyperlink */
+.link-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+}
+
+.link-btn:hover,
+.link-btn:focus {
+    color: #ffffff;
+    background: none !important;
+}
+
+.forgot-intro {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Dev-mode token display box */
+.dev-token-box {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    background: rgba(255, 220, 100, 0.15);
+    border: 1px solid rgba(255, 220, 100, 0.35);
+}
+
+.dev-token-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #ffe082;
+    margin-bottom: 0.4rem;
+}
+
+.dev-token-value {
+    display: block;
+    font-family: monospace;
+    font-size: 0.78rem;
+    word-break: break-all;
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff8dc;
+    padding: 0.5rem 0.7rem;
+    border-radius: 0.6rem;
+    margin-bottom: 0.5rem;
+    cursor: text;
+    user-select: all;
+}
+
+.dev-token-note {
+    font-size: 0.78rem;
+    color: rgba(255, 220, 100, 0.75);
+    margin: 0;
+}
+
+/* ── Global Input / Button Radius ─────────────────────────────────────────── */
 
 button,
 input,
@@ -334,21 +657,22 @@ textarea {
     border-radius: 0.9rem !important;
 }
 
-/* RESPONSIVE */
+/* ── Responsive ───────────────────────────────────────────────────────────── */
 
-@media (max-width: 900px) {
-    .hero-section {
-        min-height: 380px;
-        padding: 1.75rem;
-        background-position: center;
-    }
-
+@media (max-width: 1100px) {
     .layout-grid {
         grid-template-columns: 1fr;
     }
 
     .image-panel {
         min-height: auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .hero-section {
+        min-height: 380px;
+        padding: 1.75rem;
     }
 }
 
@@ -359,27 +683,26 @@ textarea {
     }
 
     .hero-section,
-    .card-panel {
-        border-radius: 1rem;
-    }
+    .card-panel { border-radius: 1rem; }
 
-    .dashboard-header {
-        flex-direction: column;
-    }
+    .dashboard-header { flex-direction: column; }
 
     .button-row {
         flex-direction: column;
     }
 
-    .button-row button {
-        width: 100%;
-    }
+    .button-row button { width: 100%; }
 
-    .hero-badges {
-        gap: 0.5rem;
-    }
+    .form-row-2col { grid-template-columns: 1fr; }
 
-    .hero-badge {
-        font-size: 0.82rem;
-    }
+    .filter-row { flex-direction: column; }
+    .filter-row select,
+    .filter-row input,
+    .filter-btn { width: 100%; }
+
+    .task-card-footer { flex-direction: column; align-items: flex-start; }
+    .task-actions { width: 100%; justify-content: flex-end; }
+
+    .hero-badges { gap: 0.5rem; }
+    .hero-badge  { font-size: 0.82rem; }
 }

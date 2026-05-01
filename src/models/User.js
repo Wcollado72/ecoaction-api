@@ -39,6 +39,20 @@ const User = sequelize.define('User', {
                 msg: 'Password is required.'
             }
         }
+    },
+
+    // ── Password Reset Fields ──────────────────────────────────────────────
+    // Stores a SHA-256 hash of the raw reset token (never the raw token itself).
+    resetPasswordToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: null
+    },
+    // Expiration timestamp — token is valid for 1 hour after generation.
+    resetPasswordExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null
     }
 }, {
     timestamps: true,

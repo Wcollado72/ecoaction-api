@@ -3,119 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoAction Task Dashboard</title>
+    <title>EcoAction — Task Dashboard</title>
 
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     >
-
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <main class="container app-shell">
+
+        <!-- ── HERO SECTION ────────────────────────────────────────── -->
         <section class="hero-section">
             <div class="hero-overlay"></div>
-
             <div class="hero-content">
-                <p class="eyebrow">EcoAction Frontend Prototype</p>
+                <p class="eyebrow">EcoAction Platform</p>
                 <h1>EcoAction Task Dashboard</h1>
                 <p class="hero-text">
-                    A clean and modern task management interface designed to work with the EcoAction REST API.
-                    This dashboard will allow users to register, log in, manage tasks, apply filters,
-                    and interact with the backend through a polished visual experience.
+                    Manage your environmental actions, track progress, and make every
+                    task count for the planet. Register, log in, and start your eco journey.
                 </p>
-
                 <div class="hero-badges">
-                    <span class="hero-badge">REST API</span>
-                    <span class="hero-badge">JWT Auth</span>
-                    <span class="hero-badge">Task Filters</span>
+                    <span class="hero-badge">🌿 REST API</span>
+                    <span class="hero-badge">🔐 JWT Auth</span>
+                    <span class="hero-badge">✅ Task Filters</span>
+                    <span class="hero-badge">♻️ Eco Actions</span>
                 </div>
             </div>
         </section>
 
+        <!-- ── TWO-PANEL LAYOUT ─────────────────────────────────────── -->
         <section class="grid layout-grid">
+
+            <!-- ── LEFT PANEL: AUTHENTICATION ──────────────────────── -->
             <article class="card-panel auth-panel image-panel">
                 <div class="panel-overlay"></div>
                 <div class="panel-content">
-                    <header>
-                        <h2>Authentication</h2>
-                        <p class="section-text panel-text-light">
-                            This section will handle user registration and login using the API.
-                        </p>
-                    </header>
 
-                    <div class="button-row">
-                        <button id="show-register-btn" class="secondary light-button" type="button">Register</button>
-                        <button id="show-login-btn" class="light-solid-button" type="button">Login</button>
+                    <!-- Logged-OUT state: show register/login form -->
+                    <div id="auth-logged-out">
+                        <header>
+                            <h2>Authentication</h2>
+                            <p class="section-text panel-text-light">
+                                Create an account or log in to manage your eco tasks.
+                            </p>
+                        </header>
+
+                        <!-- Mode toggle buttons -->
+                        <div class="button-row">
+                            <button id="show-register-btn" class="light-button"        type="button">Register</button>
+                            <button id="show-login-btn"    class="light-solid-button"  type="button">Login</button>
+                        </div>
+
+                        <!-- Alert messages (errors / success) -->
+                        <div id="alert-box" class="alert-box hidden" role="alert"></div>
+
+                        <!-- ── View 1: Register / Login form ── -->
+                        <form id="auth-form" class="glass-form" novalidate>
+                            <label for="auth-email" class="light-label">Email</label>
+                            <input
+                                type="email"
+                                id="auth-email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                                required
+                            >
+
+                            <label for="auth-password" class="light-label">Password</label>
+                            <div class="password-wrapper">
+                                <input
+                                    type="password"
+                                    id="auth-password"
+                                    name="password"
+                                    placeholder="At least 6 characters"
+                                    autocomplete="current-password"
+                                    required
+                                >
+                                <button type="button" class="toggle-password" data-target="auth-password" aria-label="Show password" tabindex="-1"></button>
+                            </div>
+
+                            <button id="auth-submit-btn" class="light-solid-button" type="submit">Login</button>
+
+                            <!-- Forgot password link — only visible in login mode -->
+                            <div id="forgot-password-link-wrap" class="forgot-link-wrap">
+                                <button type="button" id="show-forgot-btn" class="link-btn">
+                                    Forgot your password?
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- ── View 2: Forgot Password form ── -->
+                        <div id="forgot-form-section" class="hidden">
+                            <p class="panel-text-light forgot-intro">
+                                Enter your registered email and we'll generate a reset token for you.
+                            </p>
+                            <form id="forgot-form" class="glass-form" novalidate>
+                                <label for="forgot-email" class="light-label">Email</label>
+                                <input
+                                    type="email"
+                                    id="forgot-email"
+                                    placeholder="you@example.com"
+                                    autocomplete="email"
+                                    required
+                                >
+                                <div class="button-row">
+                                    <button type="submit" class="light-solid-button">Send Reset Token</button>
+                                    <button type="button" id="back-to-login-btn" class="light-button">← Back to Login</button>
+                                </div>
+                            </form>
+
+                            <!-- Dev-mode token display (shown after token is generated) -->
+                            <div id="dev-token-box" class="dev-token-box hidden">
+                                <p class="dev-token-label">⚠️ Dev Mode — Reset Token (copy this):</p>
+                                <code id="dev-token-value" class="dev-token-value"></code>
+                                <p class="dev-token-note">In production this would be sent to your email. Token expires in 1 hour.</p>
+                            </div>
+                        </div>
+
+                        <!-- ── View 3: Reset Password form ── -->
+                        <div id="reset-form-section" class="hidden">
+                            <p class="panel-text-light forgot-intro">
+                                Paste your reset token and choose a new password.
+                            </p>
+                            <form id="reset-form" class="glass-form" novalidate>
+                                <label for="reset-token" class="light-label">Reset Token</label>
+                                <input
+                                    type="text"
+                                    id="reset-token"
+                                    placeholder="Paste your reset token here"
+                                    autocomplete="off"
+                                    required
+                                >
+
+                                <label for="reset-new-password" class="light-label">New Password</label>
+                                <div class="password-wrapper">
+                                    <input
+                                        type="password"
+                                        id="reset-new-password"
+                                        placeholder="At least 6 characters"
+                                        autocomplete="new-password"
+                                        required
+                                    >
+                                    <button type="button" class="toggle-password" data-target="reset-new-password" aria-label="Show password" tabindex="-1"></button>
+                                </div>
+
+                                <label for="reset-confirm-password" class="light-label">Confirm Password</label>
+                                <div class="password-wrapper">
+                                    <input
+                                        type="password"
+                                        id="reset-confirm-password"
+                                        placeholder="Repeat new password"
+                                        autocomplete="new-password"
+                                        required
+                                    >
+                                    <button type="button" class="toggle-password" data-target="reset-confirm-password" aria-label="Show password" tabindex="-1"></button>
+                                </div>
+
+                                <div class="button-row">
+                                    <button type="submit" class="light-solid-button">Reset Password</button>
+                                    <button type="button" id="back-to-forgot-btn" class="light-button">← Back</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
-                    <div id="alert-box" class="alert-box hidden" role="alert"></div>
+                    <!-- Logged-IN state: show user info on auth panel -->
+                    <div id="auth-logged-in" class="hidden">
+                        <header>
+                            <h2>Welcome back! 👋</h2>
+                        </header>
+                        <div class="logged-in-card">
+                            <p class="light-label">Signed in as</p>
+                            <p id="auth-user-email" class="user-email-display">—</p>
+                            <p class="panel-text-light auth-tip">
+                                Your tasks are private and only visible to you.
+                                Use the dashboard to manage them.
+                            </p>
+                            <button id="logout-btn" type="button" class="light-button logout-btn-full">
+                                🔓 Logout
+                            </button>
+                        </div>
+                    </div>
 
-                    <form id="auth-form" class="glass-form">
-                        <label for="auth-email" class="light-label">Email</label>
-                        <input
-                            type="email"
-                            id="auth-email"
-                            name="email"
-                            placeholder="Enter your email"
-                            required
-                        >
-
-                        <label for="auth-password" class="light-label">Password</label>
-                        <input
-                            type="password"
-                            id="auth-password"
-                            name="password"
-                            placeholder="Enter your password"
-                            required
-                        >
-
-                        <button id="auth-submit-btn" class="light-solid-button" type="submit">Login</button>
-                    </form>
                 </div>
             </article>
 
+            <!-- ── RIGHT PANEL: DASHBOARD ───────────────────────────── -->
             <article class="card-panel dashboard-panel image-panel">
                 <div class="panel-overlay"></div>
                 <div class="panel-content">
+
                     <header class="dashboard-header">
                         <div>
                             <h2>Dashboard</h2>
-                            <p class="section-text panel-text-light">
-                                Task management features will appear here after authentication is connected.
+                            <p id="dashboard-subtitle" class="section-text panel-text-light">
+                                Log in to start managing your eco tasks.
                             </p>
                         </div>
-
-                        <button id="logout-btn" type="button" class="light-button hidden">
-                            Logout
+                        <!-- New Task button (shown after login) -->
+                        <button id="add-task-btn" type="button" class="light-solid-button hidden">
+                            + New Task
                         </button>
                     </header>
 
-                    <div class="dashboard-placeholder">
-                        <div class="placeholder-box placeholder-box-light">
-                            <h3>Task Form</h3>
-                            <p>
-                                This area will contain the create and update task form.
-                            </p>
+                    <div class="dashboard-body">
+
+                        <!-- Before login: placeholder message -->
+                        <div id="dashboard-placeholder" class="placeholder-box placeholder-box-light">
+                            <h3>🌱 Ready to take action?</h3>
+                            <p>Register or log in to access your personalized eco task board.
+                               Create tasks, track progress, and filter by status or due date.</p>
                         </div>
 
-                        <div class="placeholder-box placeholder-box-light">
-                            <h3>Filters</h3>
-                            <p>
-                                This area will contain the status and due date filters.
-                            </p>
+                        <!-- ── TASK FORM (shown for New Task / Edit) ──── -->
+                        <div id="task-form-section" class="placeholder-box placeholder-box-light hidden">
+                            <h3 id="task-form-title" class="panel-text-light">New Task</h3>
+                            <form id="task-form" class="glass-form" novalidate>
+                                <input type="hidden" id="task-id">
+
+                                <label for="task-title" class="light-label">
+                                    Title <span class="required-star">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="task-title"
+                                    placeholder="Describe the eco action..."
+                                    maxlength="200"
+                                    required
+                                >
+
+                                <label for="task-description" class="light-label">Description</label>
+                                <textarea
+                                    id="task-description"
+                                    placeholder="Optional details, goals, or steps..."
+                                    rows="2"
+                                    maxlength="1000"
+                                ></textarea>
+
+                                <div class="form-row-2col">
+                                    <div>
+                                        <label for="task-status" class="light-label">Status</label>
+                                        <select id="task-status">
+                                            <option value="pending">⏳ Pending</option>
+                                            <option value="in_progress">🔄 In Progress</option>
+                                            <option value="done">✅ Done</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="task-due-date" class="light-label">Due Date</label>
+                                        <input type="date" id="task-due-date">
+                                    </div>
+                                </div>
+
+                                <div class="button-row">
+                                    <button type="submit" id="task-submit-btn" class="light-solid-button">
+                                        Create Task
+                                    </button>
+                                    <button type="button" id="task-cancel-btn" class="light-button">
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                <!-- Inline form alert -->
+                                <div id="task-alert-box" class="alert-box hidden" role="alert"></div>
+                            </form>
                         </div>
 
-                        <div class="placeholder-box placeholder-box-light">
-                            <h3>Task List</h3>
-                            <p>
-                                This area will display tasks returned by the API.
-                            </p>
+                        <!-- ── FILTER BAR ─────────────────────────────── -->
+                        <div id="filter-section" class="placeholder-box placeholder-box-light hidden">
+                            <div class="filter-row">
+                                <select id="filter-status" title="Filter by status">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">⏳ Pending</option>
+                                    <option value="in_progress">🔄 In Progress</option>
+                                    <option value="done">✅ Done</option>
+                                </select>
+                                <input
+                                    type="date"
+                                    id="filter-date"
+                                    title="Filter by due date"
+                                >
+                                <button id="apply-filter-btn"  class="light-solid-button filter-btn">Apply</button>
+                                <button id="clear-filter-btn"  class="light-button filter-btn">Clear</button>
+                                <button id="seed-tasks-btn"    class="light-button filter-btn" title="Load 10 pre-defined eco tasks">🌱 Load Samples</button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+
+                        <!-- ── TASK LIST ──────────────────────────────── -->
+                        <div id="task-list-section" class="placeholder-box placeholder-box-light hidden">
+                            <div class="task-list-header">
+                                <h3 class="panel-text-light">
+                                    Your Tasks
+                                    <span id="task-count" class="task-count-badge"></span>
+                                </h3>
+                            </div>
+                            <!-- Task cards rendered here by app.js -->
+                            <div id="task-list"></div>
+                        </div>
+
+                    </div><!-- /.dashboard-body -->
+                </div><!-- /.panel-content -->
             </article>
+
         </section>
     </main>
 
